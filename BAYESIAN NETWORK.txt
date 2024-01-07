@@ -1,0 +1,44 @@
+import numpy as np
+import pandas as pd
+from pgmpy.estimators import MaximumLikelihoodEstimator
+from pgmpy.models import BayesianNetwork
+from pgmpy.inference import VariableElimination
+
+# Load the Heart Disease dataset from a CSV file
+heart_disease = pd.read_csv('/content/drive/MyDrive/AI ML/heart.csv')
+
+# Replace missing values with NaN using NumPy
+heart_disease.replace('?', np.nan, inplace=True)
+
+# Display sample instances from the dataset
+print("Sample instances from the dataset are given below:")
+print(heart_disease.head())
+
+# Display attributes and their data types
+print("\nAttributes and datatypes:")
+print(heart_disease.dtypes)
+
+# Define the structure of the Bayesian Network
+model = BayesianNetwork([('age', 'trestbps'), ('chol', 'fbs'),
+                        ('restecg', 'exang'), ('cp', 'heartdisease'),
+                        ('heartdisease', 'thal', 'num')])  # Adjust variable names as per your dataset
+
+print("\nLearning CPD using Maximum Likelihood Estimators")
+
+# Fit the model to the data using Maximum Likelihood Estimation
+model.fit(heart_disease, estimator=MaximumLikelihoodEstimator)
+
+print("\nInferencing with Bayesian Network:")
+
+# Create an inference object using Variable Elimination
+heart_disease_infer = VariableElimination(model)
+
+# 1. Probability of Heart Disease given evidence - restecg
+q1 = heart_disease_infer.query(variables=['heartdisease'], evidence={'restecg': 1})
+print("1. Probability of Heart Disease given evidence - restecg")
+print(q1)
+
+# 2. Probability of Heart Disease given evidence - cp
+q2 = heart_disease_infer.query(variables=['heartdisease'], evidence={'cp': 2})
+print("\n2. Probability of Heart Disease given evidence - cp")
+print(q2)

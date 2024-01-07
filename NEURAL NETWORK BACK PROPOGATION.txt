@@ -1,0 +1,79 @@
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.utils import shuffle
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+
+# Load the dataset
+df = pd.read_csv('/content/drive/MyDrive/AI ML/breast_cancer.csv')  # Fixed path by using r''
+
+# Extract the feature values
+X = df[['radius_mean', 'concavity_mean']].values
+
+# Create separate datasets for open and high values
+open_x = X[:50, 0]
+open_y = X[:50, 1]
+high_x = X[50:100, 0]
+high_y = X[50:100, 1]
+
+# Plot the data
+plt.figure(figsize=(10, 8))
+plt.scatter(open_x, open_y, marker='+', color='green', label='Open')
+plt.scatter(high_x, high_y, marker='o', color='red', label='High')
+plt.xlabel('Radius Mean')
+plt.ylabel('Concavity Mean')
+plt.legend()
+plt.show()
+
+# Extract target values (diagnosis) and convert to -1 or 1
+Y = df['diagnosis'].map({'M': -1, 'B': 1}).values
+
+# Drop diagnosis column from the dataframe
+df = df.drop(['diagnosis'], axis=1)
+
+# Shuffle the data
+X, Y = shuffle(X, Y)
+
+# Split the data into training and test sets
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.1)
+
+# Initialize parameters
+w1 = np.zeros(1)
+w2 = np.zeros(1)
+epochs = 10000
+alpha = 0.0001
+
+# Training the SVM using gradient descent
+for epoch in range(epochs):
+    errors = []
+    for i in range(X_train.shape[0]):
+        x = X_train[i]
+        y = Y_train[i]
+        condition = y * (w1 * x[0] + w2 * x[1])
+        if condition >= 1:
+            w1 = w1 - alpha * (2 * 1 / epochs * w1)
+            w2 = w2 - alpha * (2 * 1 / epochs * w2)
+        else:
+            w1 = w1 + alpha * (x[0] * y - 2 * 1 / epochs * w1)
+            w2 = w2 + alpha * (x[1] * y - 2 * 1 / epochs * w2)
+            errors.append(condition)
+
+    # Calculate the hinge loss
+    loss = 0.5 * (w1 ** 2 + w2 ** 2) + np.mean(errors)
+    print(f'Epoch {epoch}: Loss = {loss}')
+
+# Clip the weights
+index = list(range(10, X_train.shape[0]))
+w1 = np.delete(w1, index)
+w2 = np.delete(w2, index)
+
+# Extract the test data features
+test_fl = X_test[:, 0].reshape(-1, 1)
+test_f2 = X_test[:, 1].reshape(-1, 1)
+
+# Predict
+y_pred = w1 * test_fl + w2 * test_f2
+predictions = np.where(y_pred > 1, 1, -1)
+

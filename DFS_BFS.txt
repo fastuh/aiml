@@ -1,0 +1,95 @@
+# First, you need to install NetworkX and Matplotlib using pip if you haven't already:
+# pip install networkx matplotlib
+
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def bfs(graph, start_node):
+    visited = set()
+    queue = [start_node]
+    visited.add(start_node)
+    bfs_order = [start_node]
+
+    while queue:
+        node = queue.pop(0)
+
+        for neighbor in graph.neighbors(node):
+            if neighbor not in visited:
+                queue.append(neighbor)
+                visited.add(neighbor)
+                bfs_order.append(neighbor)
+
+    return bfs_order
+
+G = nx.DiGraph()
+
+G.add_edge(0, 1)
+G.add_edge(0, 3)
+G.add_edge(1, 2)
+G.add_edge(1, 3)
+G.add_edge(2, 1)
+G.add_edge(2, 3)
+G.add_edge(3, 3)
+
+start_node = 2
+bfs_order = bfs(G, start_node)
+print("BFS starting from vertex 2:", bfs_order)
+
+pos = nx.spring_layout(G)
+nx.draw(G, pos, with_labels=True, node_color='lightblue', node_size=600)
+plt.title("BFS Visualization")
+plt.show()
+
+import matplotlib.pyplot as plt
+import networkx as nx
+
+class Graph:
+    def __init__(self):
+        self.graph = {}
+
+    def add_edge(self, u, v):
+        if u not in self.graph:
+            self.graph[u] = []
+        self.graph[u].append(v)
+
+    def dfs(self, start):
+        visited = set()
+        dfs_order = []
+
+        def dfs_recursive(node):
+            visited.add(node)
+            dfs_order.append(node)
+            for neighbor in self.graph.get(node, []):
+                if neighbor not in visited:
+                    dfs_recursive(neighbor)
+
+        dfs_recursive(start)
+        return dfs_order
+
+def visualize_dfs(graph, dfs_order):
+    G = nx.DiGraph()
+    for node, neighbors in graph.graph.items():
+        for neighbor in neighbors:
+            G.add_edge(node, neighbor)
+
+    pos = nx.spring_layout(G)
+    nx.draw(G, pos, with_labels=True, node_color='lightblue', node_size=600)
+    plt.show()
+
+# Example usage:
+g = Graph()
+g.add_edge(0, 1)
+g.add_edge(0, 3)
+g.add_edge(1, 2)
+g.add_edge(1, 3)
+g.add_edge(2, 1)
+g.add_edge(2, 3)
+g.add_edge(2, 4)
+g.add_edge(3, 3)
+
+start_node = 2
+dfs_order = g.dfs(start_node)
+print("DFS starting from vertex 2:")
+print(dfs_order)
+
+visualize_dfs(g, dfs_order)

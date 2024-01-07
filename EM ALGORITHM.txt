@@ -1,0 +1,54 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn import datasets
+from sklearn.mixture import GaussianMixture
+
+# Load the Iris dataset
+iris = datasets.load_iris()
+
+# Select the first two columns (features) of the dataset
+X = iris.data[:, :2]
+
+# Create a DataFrame from the selected features
+df = pd.DataFrame(X, columns=['Feature 1', 'Feature 2'])
+
+# Plot the data
+plt.scatter(df['Feature 1'], df['Feature 2'], label='Data Points')
+
+# Initialize a Gaussian Mixture Model with 3 components
+gmm = GaussianMixture(n_components=3)
+
+# Fit the GMM model to the dataset
+gmm.fit(df)
+
+# Assign a cluster label to each sample
+labels = gmm.predict(df)
+
+# Add the labels to the DataFrame
+df['Labels'] = labels
+
+# Separate the data into clusters based on the labels
+cluster_0 = df[df['Labels'] == 0]
+cluster_1 = df[df['Labels'] == 1]
+cluster_2 = df[df['Labels'] == 2]
+
+# Plot the three clusters with different colors
+plt.scatter(cluster_0['Feature 1'], cluster_0['Feature 2'], c='r', label='Cluster 0')
+plt.scatter(cluster_1['Feature 1'], cluster_1['Feature 2'], c='y', label='Cluster 1')
+plt.scatter(cluster_2['Feature 1'], cluster_2['Feature 2'], c='g', label='Cluster 2')
+
+# Print the converged log-likelihood value
+print("Converged Log-Likelihood Value:", gmm.lower_bound_)
+
+# Print the number of iterations needed for convergence
+print("Number of Iterations to Converge:", gmm.n_iter_)
+
+# Add labels and legend
+plt.xlabel('Feature 1')
+plt.ylabel('Feature 2')
+plt.title('Iris Dataset Clustering with GMM')
+plt.legend()
+
+# Display the plot
+plt.show()
